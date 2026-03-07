@@ -4,6 +4,7 @@ using System.Linq;
 using System.Windows.Forms;
 using MediaDevices;
 using System.Text.Json;
+using System.DirectoryServices;
 
 namespace SwitchFileSync
 {
@@ -105,7 +106,7 @@ namespace SwitchFileSync
         {
             try
             {
-                if (switchDevice == null || !switchDevice.IsConnected)
+                if ((switchDevice == null || !switchDevice.IsConnected) && !TestMode)
                 {
                     MessageBox.Show("Switch is not connected. Please connect it via USB.",
                                     "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -142,7 +143,7 @@ namespace SwitchFileSync
                 progressBar.Value = 0;
 
                 // Backup
-                string backupRoot = CreateBackupRoot();
+                string backupRoot = CreateBackupRoot(pcPath);
                 BackupFromPc(pcPath, backupRoot);
                 BackupFromSwitch(switchPath, backupRoot);
 
@@ -178,7 +179,7 @@ namespace SwitchFileSync
         {
             try
             {
-                if (switchDevice == null || !switchDevice.IsConnected)
+                if ((switchDevice == null || !switchDevice.IsConnected) && !TestMode)
                 {
                     MessageBox.Show("Switch is not connected. Please connect it via USB.",
                                     "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -207,7 +208,7 @@ namespace SwitchFileSync
                 progressBar.Value = 0;
 
                 // Backup
-                string backupRoot = CreateBackupRoot();
+                string backupRoot = CreateBackupRoot(pcPath);
                 BackupFromPc(pcPath, backupRoot);
                 BackupFromSwitch(switchPath, backupRoot);
 
@@ -309,31 +310,67 @@ namespace SwitchFileSync
         // Recursively copy from Switch → PC
         private void CopyFromSwitchRecursive(string switchPath, string pcPath, Action<int> reportProgress, ref int count, int total)
         {
-            Directory.CreateDirectory(pcPath);
+            if(!Directory.Exists(pcPath)&&!File.Exists(pcPath))
+                Directory.CreateDirectory(pcPath);
 
+            string[] files;
             // Copy files from the current folder
-            var files = switchDevice.GetFiles(switchPath);
-            foreach (var file in files.Where(f => f.EndsWith(".dat")))
+            if(switchDevice != null)
             {
-                string localFile = Path.Combine(pcPath, Path.GetFileName(file));
+                files = switchDevice.GetFiles(switchPath);
+            }
+            else
+            {
+                if (!File.Exists(switchPath))
+                    files = Directory.GetFiles(switchPath);
+                else
+                    files = Array.Empty<string>();
+            }
 
-                using (var fs = File.Create(localFile))
+                foreach (var file in files.Where(f => f.EndsWith(".dat")))
                 {
-                    switchDevice.DownloadFile(file, fs);
-                }
+                    string localFile = Path.Combine(pcPath, Path.GetFileName(file));
+
+                    if (switchDevice != null)
+                    {
+                        using (var fs = File.Create(localFile))
+                        {
+                            switchDevice.DownloadFile(file, fs);
+                        }
+                    }
+                    else
+                    {
+                        using (var sourceStream = File.OpenRead(file))
+                        using (var destStream = File.Create(localFile))
+                        {
+                            sourceStream.CopyTo(destStream);
+                        }
+                    }
 
                 // (optional) encrypt here if applicable
                 string json = File.ReadAllText(localFile);
-                SaveFileEncoder.EncodeDatFile(json, localFile);
+                    SaveFileEncoder.EncodeDatFile(json, localFile);
 
-                // Report progress
-                count++;
-                int progress = (int)((count / (float)total) * 100);
-                reportProgress(progress);
-            }
+                    // Report progress
+                    count++;
+                    int progress = (int)((count / (float)total) * 100);
+                    reportProgress(progress);
+                }
 
             // Process subfolders
-            var dirs = switchDevice.GetDirectories(switchPath);
+            string[] dirs;
+            if (switchDevice != null)
+            {
+                dirs = switchDevice.GetDirectories(switchPath);
+            }
+            else
+            {
+                if (!File.Exists(switchPath))
+                    dirs = Directory.GetFiles(switchPath);
+                else
+                    dirs = Array.Empty<string>();
+            }
+            
             foreach (var dir in dirs)
             {
                 string localSubDir = Path.Combine(pcPath, Path.GetFileName(dir));
@@ -353,14 +390,27 @@ namespace SwitchFileSync
 
                 string targetFile = Path.Combine(switchPath, Path.GetFileName(file)).Replace("\\", "/");
 
-                if (switchDevice.FileExists(targetFile))
+                if (switchDevice != null)
                 {
-                    switchDevice.DeleteFile(targetFile);
-                }
+                    if (switchDevice.FileExists(targetFile))
+                    {
+                        switchDevice.DeleteFile(targetFile);
+                    }
 
-                using (FileStream fs = File.OpenRead(tempFile))
+                    using (FileStream fs = File.OpenRead(tempFile))
+                    {
+                        switchDevice.UploadFile(fs, targetFile);
+                    }
+                }
+                else
                 {
-                    switchDevice.UploadFile(fs, targetFile);
+                    if (File.Exists(targetFile))
+                    {
+                        File.Delete(targetFile);
+                    }
+
+                    File.Copy(tempFile, targetFile);
+
                 }
 
                 // Update progress
@@ -375,9 +425,19 @@ namespace SwitchFileSync
                 string subDirName = Path.GetFileName(dir);
                 string switchSubDir = Path.Combine(switchPath, subDirName).Replace("\\", "/");
 
-                if (!switchDevice.DirectoryExists(switchSubDir))
+                if (switchDevice != null)
                 {
-                    switchDevice.CreateDirectory(switchSubDir);
+                    if (!switchDevice.DirectoryExists(switchSubDir))
+                    {
+                        switchDevice.CreateDirectory(switchSubDir);
+                    }
+                }
+                else
+                {
+                    if (!Directory.Exists(switchSubDir))
+                    {
+                        Directory.CreateDirectory(switchSubDir);
+                    }
                 }
 
                 CopyFromPcRecursive(dir, switchSubDir, reportProgress, ref count, total);
@@ -386,11 +446,22 @@ namespace SwitchFileSync
 
         private int CountSwitchFiles(string switchPath)
         {
-            int count = switchDevice.GetFiles(switchPath).Count(f => f.EndsWith(".dat"));
-
-            foreach (var dir in switchDevice.GetDirectories(switchPath))
+            int count;
+            if (switchDevice != null)
             {
-                count += CountSwitchFiles(dir);
+                count = switchDevice.GetFiles(switchPath).Count(f => f.EndsWith(".dat"));
+                foreach (var dir in switchDevice.GetDirectories(switchPath))
+                {
+                    count += CountSwitchFiles(dir);
+                }
+            }
+            else
+            {
+                count = Directory.GetFiles(switchPath).Count(f => f.EndsWith(".dat"));
+                foreach (var dir in Directory.GetDirectories(switchPath))
+                {
+                    count += CountSwitchFiles(dir);
+                }
             }
 
             return count;
@@ -568,10 +639,10 @@ namespace SwitchFileSync
         }
 
         // backup
-        private string CreateBackupRoot()
+        private string CreateBackupRoot(string path)
         {
             string timestamp = DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss");
-            string root = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "backups", timestamp);
+            string root = Path.Combine(path, "backups", timestamp);
             Directory.CreateDirectory(root);
             return root;
         }
@@ -584,8 +655,6 @@ namespace SwitchFileSync
 
         private void CopyDirectory(string sourceDir, string destDir)
         {
-            Directory.CreateDirectory(destDir);
-
             // Copy files
             foreach (string file in Directory.GetFiles(sourceDir))
             {
@@ -609,31 +678,60 @@ namespace SwitchFileSync
 
         private void CopyFromSwitchRecursiveBack(string switchPath, string pcPath)
         {
-            Directory.CreateDirectory(pcPath);
-
+            string[] files;
             // Copy files from the current folder
-            var files = switchDevice.GetFiles(switchPath);
-            foreach (var file in files.Where(f => f.EndsWith(".dat")))
+            if (switchDevice != null)
             {
-                string localFile = Path.Combine(pcPath, Path.GetFileName(file));
-
-                using (var fs = File.Create(localFile))
+                files = switchDevice.GetFiles(switchPath);
+                foreach (var file in files.Where(f => f.EndsWith(".dat")))
                 {
-                    switchDevice.DownloadFile(file, fs);
+                    string localFile = Path.Combine(pcPath, Path.GetFileName(file));
+
+                    using (var fs = File.Create(localFile))
+                    {
+                        switchDevice.DownloadFile(file, fs);
+                    }
+
+                    // (optional) encrypt here if applicable
+                    string json = File.ReadAllText(localFile);
+                    SaveFileEncoder.EncodeDatFile(json, localFile);
                 }
 
-                // (optional) encrypt here if applicable
-                string json = File.ReadAllText(localFile);
-                SaveFileEncoder.EncodeDatFile(json, localFile);
+                // Process subfolders
+                var dirs = switchDevice.GetDirectories(switchPath);
+                foreach (var dir in dirs)
+                {
+                    string localSubDir = Path.Combine(pcPath, Path.GetFileName(dir));
+                    CopyFromSwitchRecursiveBack(dir, localSubDir);
+                }
             }
-
-            // Process subfolders
-            var dirs = switchDevice.GetDirectories(switchPath);
-            foreach (var dir in dirs)
+            else
             {
-                string localSubDir = Path.Combine(pcPath, Path.GetFileName(dir));
-                CopyFromSwitchRecursiveBack(dir, localSubDir);
+                files = Directory.GetFiles(switchPath);
+                foreach (var file in files.Where(f => f.EndsWith(".dat")))
+                {
+                    string localFile = Path.Combine(pcPath, Path.GetFileName(file));
+
+                    using (var sourceStream = File.OpenRead(file))
+                    using (var destStream = File.Create(localFile))
+                    {
+                        sourceStream.CopyTo(destStream);
+                    }
+
+                    // (optional) encrypt here if applicable
+                    string json = File.ReadAllText(localFile);
+                    SaveFileEncoder.EncodeDatFile(json, localFile);
+                }
+
+                // Process subfolders
+                var dirs = Directory.GetDirectories(switchPath);
+                foreach (var dir in dirs)
+                {
+                    string localSubDir = Path.Combine(pcPath, Path.GetFileName(dir));
+                    CopyFromSwitchRecursiveBack(dir, localSubDir);
+                }
             }
+            
         }
     }
 }
