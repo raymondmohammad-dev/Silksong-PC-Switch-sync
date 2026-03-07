@@ -103,7 +103,6 @@
             // 
             this.txtSwitchPath.Location = new System.Drawing.Point(20, 100);
             this.txtSwitchPath.Name = "txtSwitchPath";
-            this.txtSwitchPath.ReadOnly = true;
             this.txtSwitchPath.Size = new System.Drawing.Size(400, 23);
             this.txtSwitchPath.TabIndex = 4;
             // 

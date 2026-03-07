@@ -9,6 +9,7 @@ namespace SwitchFileSync
 {
     public partial class MainForm : Form
     {
+        private bool TestMode = true; // set to true to enable test mode with local folders instead of MTP
         private MediaDevice? switchDevice;
         private AppConfig config;
         private double? pcPlaytime = null;
@@ -44,7 +45,7 @@ namespace SwitchFileSync
 
             DetectSwitch();
 
-            if (switchDevice == null || !switchDevice.IsConnected)
+            if ((switchDevice == null || !switchDevice.IsConnected) && !TestMode)
             {
                 this.Close();
                 return;
@@ -69,6 +70,10 @@ namespace SwitchFileSync
             {
                 switchDevice.Connect();
                 MessageBox.Show("Switch detected via MTP.");
+            }
+            else if (TestMode)
+            {
+                MessageBox.Show("Test mode enabled: no Switch detected, using local folders instead.");
             }
             else
             {
@@ -241,14 +246,24 @@ namespace SwitchFileSync
 
         private void LoadSwitchExplorer()
         {
-            if (switchDevice == null) return;
+            if (switchDevice == null) // Test mode
+            {
+                treeSwitchExplorer.Nodes.Clear();
 
-            treeSwitchExplorer.Nodes.Clear();
+                var rootNode = new TreeNode("C:\\") { Tag = @"C:\" };
+                treeSwitchExplorer.Nodes.Add(rootNode);
 
-            var rootNode = new TreeNode("Switch (MTP)") { Tag = "\\" };
-            treeSwitchExplorer.Nodes.Add(rootNode);
+                LoadDirectories(rootNode);
+            }
+            else
+            {
+                treeSwitchExplorer.Nodes.Clear();
 
-            LoadDirectories(rootNode);
+                var rootNode = new TreeNode("Switch (MTP)") { Tag = "\\" };
+                treeSwitchExplorer.Nodes.Add(rootNode);
+
+                LoadDirectories(rootNode);
+            }
         }
 
         private void LoadDirectories(TreeNode node)
@@ -257,7 +272,11 @@ namespace SwitchFileSync
 
             try
             {
-                var dirs = switchDevice.GetDirectories(path);
+                string[] dirs;
+                dirs = Directory.GetDirectories(path);
+                if (switchDevice != null)
+                    dirs = switchDevice.GetDirectories(path);
+
                 foreach (var dir in dirs)
                 {
                     var child = new TreeNode(Path.GetFileName(dir)) { Tag = dir };
