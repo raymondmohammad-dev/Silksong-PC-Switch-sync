@@ -436,7 +436,7 @@ namespace SwitchFileSync
         private void LoadPlaytimeFromSwitch(string switchPath)
         {
             string filePath = Path.Combine(switchPath, "user1.dat").Replace("\\", "/");
-            if (switchDevice == null || !switchDevice.IsConnected || !switchDevice.FileExists(filePath))
+            if ((switchDevice == null || !switchDevice.IsConnected || !switchDevice.FileExists(filePath)) && !TestMode)
             {
                 switchPlaytime = null;
                 lblPlaytimeSwitch.Text = "Playtime Switch: N/A";
@@ -446,11 +446,24 @@ namespace SwitchFileSync
 
             try
             {
-                using var ms = new MemoryStream();
-                switchDevice.DownloadFile(filePath, ms);
-                ms.Position = 0;
-                using var reader = new StreamReader(ms);
-                string json = reader.ReadToEnd();
+                string json;
+                Stream stream;
+                if (switchDevice != null)
+                {
+                    stream = new MemoryStream();
+                    switchDevice.DownloadFile(filePath, stream);
+                    stream.Position = 0;
+                }
+                else
+                {
+                    stream = File.OpenRead(filePath);
+                }
+
+                using (stream)
+                using (var reader = new StreamReader(stream))
+                {
+                    json = reader.ReadToEnd();
+                }
 
                 var pt = TryGetPlaytime(json);
 
