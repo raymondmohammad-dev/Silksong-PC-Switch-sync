@@ -11,6 +11,7 @@
         private System.Windows.Forms.Label lblPcPath;
         private System.Windows.Forms.Label lblSwitchPath;
         private System.Windows.Forms.Button btnBrowsePc;
+        private System.Windows.Forms.Button btnBrowseSwitch;
         private System.Windows.Forms.TreeView treeSwitchExplorer;
         private System.Windows.Forms.Label lblPlaytimePc;
         private System.Windows.Forms.Label lblPlaytimeSwitch;
@@ -37,6 +38,7 @@
             this.lblPcPath = new System.Windows.Forms.Label();
             this.lblSwitchPath = new System.Windows.Forms.Label();
             this.btnBrowsePc = new System.Windows.Forms.Button();
+            this.btnBrowseSwitch = new System.Windows.Forms.Button();
             this.treeSwitchExplorer = new System.Windows.Forms.TreeView();
             this.SuspendLayout();
 
@@ -77,7 +79,16 @@
             this.btnBrowsePc.TabIndex = 2;
             this.btnBrowsePc.Text = "Browse";
             this.btnBrowsePc.UseVisualStyleBackColor = true;
-            this.btnBrowsePc.Click += new System.EventHandler(this.btnBrowsePc_Click);
+            this.btnBrowsePc.Click += new System.EventHandler(this.btnBrowsePc_Click);// 
+            // btnBrowseSwitch
+            // 
+            this.btnBrowseSwitch.Location = new System.Drawing.Point(430, 100);
+            this.btnBrowseSwitch.Name = "btnBrowseSwitch";
+            this.btnBrowseSwitch.Size = new System.Drawing.Size(75, 23);
+            this.btnBrowseSwitch.TabIndex = 2;
+            this.btnBrowseSwitch.Text = "Browse";
+            this.btnBrowseSwitch.UseVisualStyleBackColor = true;
+            this.btnBrowseSwitch.Click += new System.EventHandler(this.btnBrowseSwitch_Click);
             // 
             // lblSwitchPath
             // 
@@ -148,6 +159,7 @@
             this.Controls.Add(this.lblPlaytimePc);
             this.Controls.Add(this.lblPlaytimeSwitch);
             this.Controls.Add(this.btnBrowsePc);
+            this.Controls.Add(this.btnBrowseSwitch);
             this.Controls.Add(this.txtPcPath);
             this.Controls.Add(this.lblPcPath);
             this.Name = "MainForm";
