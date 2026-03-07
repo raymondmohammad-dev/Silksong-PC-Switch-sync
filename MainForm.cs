@@ -121,7 +121,7 @@ namespace SwitchFileSync
                     return;
                 }
 
-                if (switchPlaytime.Value == pcPlaytime.Value)
+                if (switchPlaytime.HasValue && switchPlaytime.HasValue && switchPlaytime.Value == pcPlaytime.Value)
                 {
                     MessageBox.Show("The saves are already synchronized.", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     return;
@@ -143,6 +143,7 @@ namespace SwitchFileSync
                 progressBar.Value = 0;
 
                 // Backup
+                // TODO fix recursion
                 string backupRoot = CreateBackupRoot(pcPath);
                 BackupFromPc(pcPath, backupRoot);
                 BackupFromSwitch(switchPath, backupRoot);
@@ -208,6 +209,7 @@ namespace SwitchFileSync
                 progressBar.Value = 0;
 
                 // Backup
+                // TODO fix recursion
                 string backupRoot = CreateBackupRoot(pcPath);
                 BackupFromPc(pcPath, backupRoot);
                 BackupFromSwitch(switchPath, backupRoot);
@@ -371,11 +373,11 @@ namespace SwitchFileSync
                     dirs = Array.Empty<string>();
             }
             
-            foreach (var dir in dirs)
+            /*foreach (var dir in dirs)
             {
                 string localSubDir = Path.Combine(pcPath, Path.GetFileName(dir));
                 CopyFromSwitchRecursive(dir, localSubDir, reportProgress, ref count, total);
-            }
+            }*/
         }
 
         // Recursively copy from PC → Switch
@@ -420,7 +422,7 @@ namespace SwitchFileSync
             }
 
             // Process subfolders
-            foreach (string dir in Directory.GetDirectories(pcPath))
+            /*foreach (string dir in Directory.GetDirectories(pcPath))
             {
                 string subDirName = Path.GetFileName(dir);
                 string switchSubDir = Path.Combine(switchPath, subDirName).Replace("\\", "/");
@@ -441,7 +443,7 @@ namespace SwitchFileSync
                 }
 
                 CopyFromPcRecursive(dir, switchSubDir, reportProgress, ref count, total);
-            }
+            }*/
         }
 
         private int CountSwitchFiles(string switchPath)
@@ -507,7 +509,7 @@ namespace SwitchFileSync
         private void LoadPlaytimeFromSwitch(string switchPath)
         {
             string filePath = Path.Combine(switchPath, "user1.dat").Replace("\\", "/");
-            if ((switchDevice == null || !switchDevice.IsConnected || !switchDevice.FileExists(filePath)) && !TestMode)
+            if ((switchDevice == null || !switchDevice.IsConnected || !switchDevice.FileExists(filePath)) && (!TestMode || !Directory.Exists(filePath)))
             {
                 switchPlaytime = null;
                 lblPlaytimeSwitch.Text = "Playtime Switch: N/A";
@@ -659,15 +661,17 @@ namespace SwitchFileSync
             foreach (string file in Directory.GetFiles(sourceDir))
             {
                 string target = Path.Combine(destDir, Path.GetFileName(file));
+                if (!Directory.Exists(destDir))
+                   Directory.CreateDirectory(destDir);
                 File.Copy(file, target, true);
             }
 
             // Recursion in subfolders
-            foreach (string dir in Directory.GetDirectories(sourceDir))
+            /*foreach (string dir in Directory.GetDirectories(sourceDir))
             {
                 string subDest = Path.Combine(destDir, Path.GetFileName(dir));
                 CopyDirectory(dir, subDest);
-            }
+            }*/
         }
 
         private void BackupFromSwitch(string switchPath, string backupRoot)
@@ -698,12 +702,12 @@ namespace SwitchFileSync
                 }
 
                 // Process subfolders
-                var dirs = switchDevice.GetDirectories(switchPath);
+                /*var dirs = switchDevice.GetDirectories(switchPath);
                 foreach (var dir in dirs)
                 {
                     string localSubDir = Path.Combine(pcPath, Path.GetFileName(dir));
                     CopyFromSwitchRecursiveBack(dir, localSubDir);
-                }
+                }*/
             }
             else
             {
@@ -711,6 +715,9 @@ namespace SwitchFileSync
                 foreach (var file in files.Where(f => f.EndsWith(".dat")))
                 {
                     string localFile = Path.Combine(pcPath, Path.GetFileName(file));
+
+                    if(!Directory.Exists(pcPath))
+                        Directory.CreateDirectory(pcPath);
 
                     using (var sourceStream = File.OpenRead(file))
                     using (var destStream = File.Create(localFile))
@@ -724,12 +731,12 @@ namespace SwitchFileSync
                 }
 
                 // Process subfolders
-                var dirs = Directory.GetDirectories(switchPath);
+                /*var dirs = Directory.GetDirectories(switchPath);
                 foreach (var dir in dirs)
                 {
                     string localSubDir = Path.Combine(pcPath, Path.GetFileName(dir));
                     CopyFromSwitchRecursiveBack(dir, localSubDir);
-                }
+                }*/
             }
             
         }
