@@ -10,7 +10,7 @@ namespace SwitchFileSync
 {
     public partial class MainForm : Form
     {
-        private bool TestMode = true; // set to true to enable test mode with local folders instead of MTP
+        private bool LocalMode = false; // set to true to enable test mode with local folders instead of MTP
         private MediaDevice? switchDevice;
         private AppConfig config;
         private double? pcPlaytime = null;
@@ -46,7 +46,7 @@ namespace SwitchFileSync
 
             DetectSwitch();
 
-            if ((switchDevice == null || !switchDevice.IsConnected) && !TestMode)
+            if ((switchDevice == null || !switchDevice.IsConnected) && !LocalMode)
             {
                 this.Close();
                 return;
@@ -72,13 +72,10 @@ namespace SwitchFileSync
                 switchDevice.Connect();
                 MessageBox.Show("Switch detected via MTP.");
             }
-            else if (TestMode)
-            {
-                MessageBox.Show("Test mode enabled: no Switch detected, using local folders instead.");
-            }
             else
             {
-                MessageBox.Show("Switch is not connected. Please connect it via USB in MTP mode.");
+                this.LocalMode = true;
+                MessageBox.Show("Local mode enabled: no Switch detected, using local folders instead.");
             }
         }
 
@@ -106,7 +103,7 @@ namespace SwitchFileSync
         {
             try
             {
-                if ((switchDevice == null || !switchDevice.IsConnected) && !TestMode)
+                if ((switchDevice == null || !switchDevice.IsConnected) && !LocalMode)
                 {
                     MessageBox.Show("Switch is not connected. Please connect it via USB.",
                                     "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -121,7 +118,7 @@ namespace SwitchFileSync
                     return;
                 }
 
-                if (switchPlaytime.HasValue && switchPlaytime.HasValue && switchPlaytime.Value == pcPlaytime.Value)
+                if (switchPlaytime.HasValue && pcPlaytime.HasValue && switchPlaytime.Value == pcPlaytime.Value)
                 {
                     MessageBox.Show("The saves are already synchronized.", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     return;
@@ -180,7 +177,7 @@ namespace SwitchFileSync
         {
             try
             {
-                if ((switchDevice == null || !switchDevice.IsConnected) && !TestMode)
+                if ((switchDevice == null || !switchDevice.IsConnected) && !LocalMode)
                 {
                     MessageBox.Show("Switch is not connected. Please connect it via USB.",
                                     "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -193,6 +190,12 @@ namespace SwitchFileSync
                 if (!Directory.Exists(pcPath))
                 {
                     MessageBox.Show("Invalid PC path.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                if (switchPlaytime.HasValue && pcPlaytime.HasValue && switchPlaytime.Value == pcPlaytime.Value)
+                {
+                    MessageBox.Show("The saves are already synchronized.", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     return;
                 }
 
@@ -509,7 +512,7 @@ namespace SwitchFileSync
         private void LoadPlaytimeFromSwitch(string switchPath)
         {
             string filePath = Path.Combine(switchPath, "user1.dat").Replace("\\", "/");
-            if ((switchDevice == null || !switchDevice.IsConnected || !switchDevice.FileExists(filePath)) && (!TestMode || !Directory.Exists(filePath)))
+            if ((switchDevice == null || !switchDevice.IsConnected || !switchDevice.FileExists(filePath)) && (!LocalMode || !File.Exists(filePath)))
             {
                 switchPlaytime = null;
                 lblPlaytimeSwitch.Text = "Playtime Switch: N/A";
