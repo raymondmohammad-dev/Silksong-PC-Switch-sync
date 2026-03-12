@@ -10,25 +10,25 @@ static class Program
     {
         // To customize application configuration such as set high DPI settings or default font,
         // see https://aka.ms/applicationconfiguration.
-        
+
 
 
         try
         {
-              // MUST be called before creating any forms/controls
+            // MUST be called before creating any forms/controls
             Application.SetHighDpiMode(HighDpiMode.PerMonitorV2);
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            
+
             ApplicationConfiguration.Initialize();
             Application.Run(new MainForm());
         }
-        catch (Exception ex)
+        catch
         {
-            
+
             return;
         }
 
-       
-    }    
+
+    }
 }

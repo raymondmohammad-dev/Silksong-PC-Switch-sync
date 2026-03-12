@@ -1,10 +1,5 @@
-using System;
-using System.IO;
-using System.Linq;
-using System.Windows.Forms;
 using MediaDevices;
 using System.Text.Json;
-using System.DirectoryServices;
 
 namespace SwitchFileSync
 {
@@ -274,14 +269,16 @@ namespace SwitchFileSync
 
         private void LoadDirectories(TreeNode node)
         {
-            string path = node.Tag.ToString();
+            var path = node.Tag.ToString();
 
             try
             {
-                string[] dirs;
-                dirs = Directory.GetDirectories(path);
+                string[] dirs = Array.Empty<string>();
+
                 if (switchDevice != null)
                     dirs = switchDevice.GetDirectories(path);
+                else if (!string.IsNullOrEmpty(path))
+                    dirs = Directory.GetDirectories(path);
 
                 foreach (var dir in dirs)
                 {
@@ -297,9 +294,9 @@ namespace SwitchFileSync
             }
         }
 
-        private void treeSwitchExplorer_BeforeExpand(object sender, TreeViewCancelEventArgs e)
+        private void treeSwitchExplorer_BeforeExpand(object? sender, TreeViewCancelEventArgs e)
         {
-            if (e.Node.Nodes.Count == 1 && e.Node.Nodes[0].Text == "Loading...")
+            if (e.Node?.Nodes.Count == 1 && e.Node.Nodes[0].Text == "Loading...")
             {
                 e.Node.Nodes.Clear();
                 LoadDirectories(e.Node);
@@ -308,19 +305,19 @@ namespace SwitchFileSync
 
         private void treeSwitchExplorer_AfterSelect(object sender, TreeViewEventArgs e)
         {
-            txtSwitchPath.Text = e.Node.Tag.ToString();
+            txtSwitchPath.Text = e.Node?.Tag.ToString();
             LoadPlaytimeFromSwitch(txtSwitchPath.Text);
         }
 
         // Recursively copy from Switch → PC
         private void CopyFromSwitchRecursive(string switchPath, string pcPath, Action<int> reportProgress, ref int count, int total)
         {
-            if(!Directory.Exists(pcPath)&&!File.Exists(pcPath))
+            if (!Directory.Exists(pcPath) && !File.Exists(pcPath))
                 Directory.CreateDirectory(pcPath);
 
             string[] files;
             // Copy files from the current folder
-            if(switchDevice != null)
+            if (switchDevice != null)
             {
                 files = switchDevice.GetFiles(switchPath);
             }
@@ -332,35 +329,35 @@ namespace SwitchFileSync
                     files = Array.Empty<string>();
             }
 
-                foreach (var file in files.Where(f => f.EndsWith(".dat")))
-                {
-                    string localFile = Path.Combine(pcPath, Path.GetFileName(file));
+            foreach (var file in files.Where(f => f.EndsWith(".dat")))
+            {
+                string localFile = Path.Combine(pcPath, Path.GetFileName(file));
 
-                    if (switchDevice != null)
+                if (switchDevice != null)
+                {
+                    using (var fs = File.Create(localFile))
                     {
-                        using (var fs = File.Create(localFile))
-                        {
-                            switchDevice.DownloadFile(file, fs);
-                        }
+                        switchDevice.DownloadFile(file, fs);
                     }
-                    else
+                }
+                else
+                {
+                    using (var sourceStream = File.OpenRead(file))
+                    using (var destStream = File.Create(localFile))
                     {
-                        using (var sourceStream = File.OpenRead(file))
-                        using (var destStream = File.Create(localFile))
-                        {
-                            sourceStream.CopyTo(destStream);
-                        }
+                        sourceStream.CopyTo(destStream);
                     }
+                }
 
                 // (optional) encrypt here if applicable
                 string json = File.ReadAllText(localFile);
-                    SaveFileEncoder.EncodeDatFile(json, localFile);
+                SaveFileEncoder.EncodeDatFile(json, localFile);
 
-                    // Report progress
-                    count++;
-                    int progress = (int)((count / (float)total) * 100);
-                    reportProgress(progress);
-                }
+                // Report progress
+                count++;
+                int progress = (int)((count / (float)total) * 100);
+                reportProgress(progress);
+            }
 
             // Process subfolders
             string[] dirs;
@@ -375,7 +372,7 @@ namespace SwitchFileSync
                 else
                     dirs = Array.Empty<string>();
             }
-            
+
             /*foreach (var dir in dirs)
             {
                 string localSubDir = Path.Combine(pcPath, Path.GetFileName(dir));
@@ -509,14 +506,20 @@ namespace SwitchFileSync
         }
 
         // Read playTime from Switch
-        private void LoadPlaytimeFromSwitch(string switchPath)
+        private void LoadPlaytimeFromSwitch(string? switchPath)
         {
-            string filePath = Path.Combine(switchPath, "user1.dat").Replace("\\", "/");
-            if ((switchDevice == null || !switchDevice.IsConnected || !switchDevice.FileExists(filePath)) && (!LocalMode || !File.Exists(filePath)))
+            string filePath = "";
+            if (string.IsNullOrWhiteSpace(switchPath))
             {
-                switchPlaytime = null;
-                lblPlaytimeSwitch.Text = "Playtime Switch: N/A";
-                ComparePlaytimes();
+                SwitchPlaytimeInvalid();
+                return;
+            }
+            else
+                filePath = Path.Combine(switchPath, "user1.dat").Replace("\\", "/");
+
+            if ((switchDevice == null || !switchDevice.IsConnected || !switchDevice.FileExists(filePath)) && !File.Exists(filePath))
+            {
+                SwitchPlaytimeInvalid();
                 return;
             }
 
@@ -560,6 +563,13 @@ namespace SwitchFileSync
                 lblPlaytimeSwitch.Text = "Playtime Switch: error";
             }
 
+            ComparePlaytimes();
+        }
+
+        private void SwitchPlaytimeInvalid()
+        {
+            switchPlaytime = null;
+            lblPlaytimeSwitch.Text = "Playtime Switch: N/A";
             ComparePlaytimes();
         }
 
@@ -665,7 +675,7 @@ namespace SwitchFileSync
             {
                 string target = Path.Combine(destDir, Path.GetFileName(file));
                 if (!Directory.Exists(destDir))
-                   Directory.CreateDirectory(destDir);
+                    Directory.CreateDirectory(destDir);
                 File.Copy(file, target, true);
             }
 
@@ -719,7 +729,7 @@ namespace SwitchFileSync
                 {
                     string localFile = Path.Combine(pcPath, Path.GetFileName(file));
 
-                    if(!Directory.Exists(pcPath))
+                    if (!Directory.Exists(pcPath))
                         Directory.CreateDirectory(pcPath);
 
                     using (var sourceStream = File.OpenRead(file))
@@ -741,7 +751,7 @@ namespace SwitchFileSync
                     CopyFromSwitchRecursiveBack(dir, localSubDir);
                 }*/
             }
-            
+
         }
     }
 }
