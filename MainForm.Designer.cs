@@ -63,7 +63,7 @@
             // 
             btnSendToSwitch.Location = new Point(20, 140);
             btnSendToSwitch.Name = "btnSendToSwitch";
-            btnSendToSwitch.Size = new Size(225, 35);
+            btnSendToSwitch.Size = new Size(235, 35);
             btnSendToSwitch.TabIndex = 5;
             btnSendToSwitch.Text = "Upload to Switch";
             btnSendToSwitch.UseVisualStyleBackColor = true;
@@ -71,9 +71,9 @@
             // 
             // btnSendToPc
             // 
-            btnSendToPc.Location = new Point(280, 140);
+            btnSendToPc.Location = new Point(270, 140);
             btnSendToPc.Name = "btnSendToPc";
-            btnSendToPc.Size = new Size(225, 35);
+            btnSendToPc.Size = new Size(235, 35);
             btnSendToPc.TabIndex = 6;
             btnSendToPc.Text = "Download to PC";
             btnSendToPc.UseVisualStyleBackColor = true;
@@ -128,7 +128,8 @@
             // 
             // lblPlaytimePc
             // 
-            lblPlaytimePc.Location = new Point(20, 425);
+            lblPlaytimePc.Location = new Point(20, 423);
+            lblPlaytimePc.Margin = new Padding(0, 0, 3, 0);
             lblPlaytimePc.Name = "lblPlaytimePc";
             lblPlaytimePc.Size = new Size(250, 23);
             lblPlaytimePc.TabIndex = 0;
@@ -136,9 +137,9 @@
             // 
             // lblPlaytimeSwitch
             // 
-            lblPlaytimeSwitch.Location = new Point(280, 425);
+            lblPlaytimeSwitch.Location = new Point(270, 423);
             lblPlaytimeSwitch.Name = "lblPlaytimeSwitch";
-            lblPlaytimeSwitch.Size = new Size(250, 23);
+            lblPlaytimeSwitch.Size = new Size(246, 23);
             lblPlaytimeSwitch.TabIndex = 1;
             lblPlaytimeSwitch.Text = "Playtime Switch: N/A";
             // 
@@ -153,7 +154,7 @@
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(540, 450);
+            ClientSize = new Size(524, 451);
             Controls.Add(progressBar);
             Controls.Add(treeSwitchExplorer);
             Controls.Add(btnSendToPc);

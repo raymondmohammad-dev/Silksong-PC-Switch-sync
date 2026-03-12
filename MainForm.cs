@@ -21,15 +21,15 @@ namespace SwitchFileSync
 
                 if (scale > 1.4f) // ~150% or more
                 {
-                    this.MinimumSize = new System.Drawing.Size(800, 600);
+                    this.MinimumSize = new System.Drawing.Size(800, 650);
                 }
                 else if (scale > 1.2f) // ~125%
                 {
-                    this.MinimumSize = new System.Drawing.Size(600, 500);
+                    this.MinimumSize = new System.Drawing.Size(600, 540);
                 }
                 else // 100%
                 {
-                    this.MinimumSize = new System.Drawing.Size(600, 450);
+                    this.MinimumSize = new System.Drawing.Size(540, 490);
                 }
             };
 
@@ -192,6 +192,18 @@ namespace SwitchFileSync
                 {
                     MessageBox.Show("The saves are already synchronized.", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     return;
+                }
+
+                if (pcPlaytime.HasValue && switchPlaytime.HasValue && switchPlaytime.Value < pcPlaytime.Value)
+                {
+                    var result = MessageBox.Show(
+                        "Warning: You are about to overwrite the Pc save with an older Switch save.\nDo you want to continue?",
+                        "Older Save Detected",
+                        MessageBoxButtons.YesNo,
+                        MessageBoxIcon.Warning);
+
+                    if (result == DialogResult.No)
+                        return;
                 }
 
                 // Count files before
