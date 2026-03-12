@@ -31,142 +31,147 @@
 
         private void InitializeComponent()
         {
-            this.txtPcPath = new System.Windows.Forms.TextBox();
-            this.txtSwitchPath = new System.Windows.Forms.TextBox();
-            this.btnSendToSwitch = new System.Windows.Forms.Button();
-            this.btnSendToPc = new System.Windows.Forms.Button();
-            this.lblPcPath = new System.Windows.Forms.Label();
-            this.lblSwitchPath = new System.Windows.Forms.Label();
-            this.btnBrowsePc = new System.Windows.Forms.Button();
-            this.btnBrowseSwitch = new System.Windows.Forms.Button();
-            this.treeSwitchExplorer = new System.Windows.Forms.TreeView();
-            this.SuspendLayout();
-
-            // lblPlaytimePc
-            this.lblPlaytimePc = new System.Windows.Forms.Label();
-            this.lblPlaytimePc.Location = new System.Drawing.Point(20, 425);
-            this.lblPlaytimePc.Size = new System.Drawing.Size(250, 23);
-            this.lblPlaytimePc.Text = "Playtime PC: N/A";
-            this.Controls.Add(this.lblPlaytimePc);
-
-            // lblPlaytimeSwitch
-            this.lblPlaytimeSwitch = new System.Windows.Forms.Label();
-            this.lblPlaytimeSwitch.Location = new System.Drawing.Point(280, 425);
-            this.lblPlaytimeSwitch.Size = new System.Drawing.Size(250, 23);
-            this.lblPlaytimeSwitch.Text = "Playtime Switch: N/A";
-            this.Controls.Add(this.lblPlaytimeSwitch);
-
-            // lblPcPath
-            this.lblPcPath.AutoSize = true;
-            this.lblPcPath.Location = new System.Drawing.Point(20, 20);
-            this.lblPcPath.Name = "lblPcPath";
-            this.lblPcPath.Size = new System.Drawing.Size(97, 15);
-            this.lblPcPath.TabIndex = 0;
-            this.lblPcPath.Text = "PC Save Folder:";
+            txtPcPath = new TextBox();
+            txtSwitchPath = new TextBox();
+            btnSendToSwitch = new Button();
+            btnSendToPc = new Button();
+            lblPcPath = new Label();
+            lblSwitchPath = new Label();
+            btnBrowsePc = new Button();
+            btnBrowseSwitch = new Button();
+            treeSwitchExplorer = new TreeView();
+            lblPlaytimePc = new Label();
+            lblPlaytimeSwitch = new Label();
+            progressBar = new ProgressBar();
+            SuspendLayout();
             // 
             // txtPcPath
             // 
-            this.txtPcPath.Location = new System.Drawing.Point(20, 40);
-            this.txtPcPath.Name = "txtPcPath";
-            this.txtPcPath.Size = new System.Drawing.Size(400, 23);
-            this.txtPcPath.TabIndex = 1;
-            // 
-            // btnBrowsePc
-            // 
-            this.btnBrowsePc.Location = new System.Drawing.Point(430, 40);
-            this.btnBrowsePc.Name = "btnBrowsePc";
-            this.btnBrowsePc.Size = new System.Drawing.Size(75, 23);
-            this.btnBrowsePc.TabIndex = 2;
-            this.btnBrowsePc.Text = "Browse";
-            this.btnBrowsePc.UseVisualStyleBackColor = true;
-            this.btnBrowsePc.Click += new System.EventHandler(this.btnBrowsePc_Click);// 
-            // btnBrowseSwitch
-            // 
-            this.btnBrowseSwitch.Location = new System.Drawing.Point(430, 100);
-            this.btnBrowseSwitch.Name = "btnBrowseSwitch";
-            this.btnBrowseSwitch.Size = new System.Drawing.Size(75, 23);
-            this.btnBrowseSwitch.TabIndex = 2;
-            this.btnBrowseSwitch.Text = "Browse";
-            this.btnBrowseSwitch.UseVisualStyleBackColor = true;
-            this.btnBrowseSwitch.Click += new System.EventHandler(this.btnBrowseSwitch_Click);
-            // 
-            // lblSwitchPath
-            // 
-            this.lblSwitchPath.AutoSize = true;
-            this.lblSwitchPath.Location = new System.Drawing.Point(20, 80);
-            this.lblSwitchPath.Name = "lblSwitchPath";
-            this.lblSwitchPath.Size = new System.Drawing.Size(133, 15);
-            this.lblSwitchPath.TabIndex = 3;
-            this.lblSwitchPath.Text = "Selected Switch Folder:";
+            txtPcPath.Location = new Point(20, 40);
+            txtPcPath.Name = "txtPcPath";
+            txtPcPath.Size = new Size(400, 23);
+            txtPcPath.TabIndex = 1;
             // 
             // txtSwitchPath
             // 
-            this.txtSwitchPath.Location = new System.Drawing.Point(20, 100);
-            this.txtSwitchPath.Name = "txtSwitchPath";
-            this.txtSwitchPath.Size = new System.Drawing.Size(400, 23);
-            this.txtSwitchPath.TabIndex = 4;
+            txtSwitchPath.Location = new Point(20, 100);
+            txtSwitchPath.Name = "txtSwitchPath";
+            txtSwitchPath.Size = new Size(400, 23);
+            txtSwitchPath.TabIndex = 4;
             // 
             // btnSendToSwitch
             // 
-            this.btnSendToSwitch.Location = new System.Drawing.Point(20, 140);
-            this.btnSendToSwitch.Name = "btnSendToSwitch";
-            this.btnSendToSwitch.Size = new System.Drawing.Size(200, 35);
-            this.btnSendToSwitch.TabIndex = 5;
-            this.btnSendToSwitch.Text = "Upload to Switch";
-            this.btnSendToSwitch.UseVisualStyleBackColor = true;
-            this.btnSendToSwitch.Click += new System.EventHandler(this.btnSendToSwitch_Click);
+            btnSendToSwitch.Location = new Point(20, 140);
+            btnSendToSwitch.Name = "btnSendToSwitch";
+            btnSendToSwitch.Size = new Size(225, 35);
+            btnSendToSwitch.TabIndex = 5;
+            btnSendToSwitch.Text = "Upload to Switch";
+            btnSendToSwitch.UseVisualStyleBackColor = true;
+            btnSendToSwitch.Click += btnSendToSwitch_Click;
             // 
             // btnSendToPc
             // 
-            this.btnSendToPc.Location = new System.Drawing.Point(250, 140);
-            this.btnSendToPc.Name = "btnSendToPc";
-            this.btnSendToPc.Size = new System.Drawing.Size(200, 35);
-            this.btnSendToPc.TabIndex = 6;
-            this.btnSendToPc.Text = "Download to PC";
-            this.btnSendToPc.UseVisualStyleBackColor = true;
-            this.btnSendToPc.Click += new System.EventHandler(this.btnSendToPc_Click);
+            btnSendToPc.Location = new Point(280, 140);
+            btnSendToPc.Name = "btnSendToPc";
+            btnSendToPc.Size = new Size(225, 35);
+            btnSendToPc.TabIndex = 6;
+            btnSendToPc.Text = "Download to PC";
+            btnSendToPc.UseVisualStyleBackColor = true;
+            btnSendToPc.Click += btnSendToPc_Click;
+            // 
+            // lblPcPath
+            // 
+            lblPcPath.AutoSize = true;
+            lblPcPath.Location = new Point(20, 20);
+            lblPcPath.Name = "lblPcPath";
+            lblPcPath.Size = new Size(88, 15);
+            lblPcPath.TabIndex = 0;
+            lblPcPath.Text = "PC Save Folder:";
+            // 
+            // lblSwitchPath
+            // 
+            lblSwitchPath.AutoSize = true;
+            lblSwitchPath.Location = new Point(20, 80);
+            lblSwitchPath.Name = "lblSwitchPath";
+            lblSwitchPath.Size = new Size(128, 15);
+            lblSwitchPath.TabIndex = 3;
+            lblSwitchPath.Text = "Selected Switch Folder:";
+            // 
+            // btnBrowsePc
+            // 
+            btnBrowsePc.Location = new Point(430, 40);
+            btnBrowsePc.Name = "btnBrowsePc";
+            btnBrowsePc.Size = new Size(75, 23);
+            btnBrowsePc.TabIndex = 2;
+            btnBrowsePc.Text = "Browse";
+            btnBrowsePc.UseVisualStyleBackColor = true;
+            btnBrowsePc.Click += btnBrowsePc_Click;
+            // 
+            // btnBrowseSwitch
+            // 
+            btnBrowseSwitch.Location = new Point(430, 100);
+            btnBrowseSwitch.Name = "btnBrowseSwitch";
+            btnBrowseSwitch.Size = new Size(75, 23);
+            btnBrowseSwitch.TabIndex = 2;
+            btnBrowseSwitch.Text = "Browse";
+            btnBrowseSwitch.UseVisualStyleBackColor = true;
+            btnBrowseSwitch.Click += btnBrowseSwitch_Click;
             // 
             // treeSwitchExplorer
             // 
-            this.treeSwitchExplorer.Location = new System.Drawing.Point(20, 220);
-            this.treeSwitchExplorer.Name = "treeSwitchExplorer";
-            this.treeSwitchExplorer.Size = new System.Drawing.Size(485, 200);
-            this.treeSwitchExplorer.TabIndex = 7;
-            this.treeSwitchExplorer.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.treeSwitchExplorer_AfterSelect);
-            this.treeSwitchExplorer.BeforeExpand += new System.Windows.Forms.TreeViewCancelEventHandler(this.treeSwitchExplorer_BeforeExpand);
+            treeSwitchExplorer.Location = new Point(20, 220);
+            treeSwitchExplorer.Name = "treeSwitchExplorer";
+            treeSwitchExplorer.Size = new Size(485, 200);
+            treeSwitchExplorer.TabIndex = 7;
+            treeSwitchExplorer.BeforeExpand += treeSwitchExplorer_BeforeExpand;
+            treeSwitchExplorer.AfterSelect += treeSwitchExplorer_AfterSelect;
+            // 
+            // lblPlaytimePc
+            // 
+            lblPlaytimePc.Location = new Point(20, 425);
+            lblPlaytimePc.Name = "lblPlaytimePc";
+            lblPlaytimePc.Size = new Size(250, 23);
+            lblPlaytimePc.TabIndex = 0;
+            lblPlaytimePc.Text = "Playtime PC: N/A";
+            // 
+            // lblPlaytimeSwitch
+            // 
+            lblPlaytimeSwitch.Location = new Point(280, 425);
+            lblPlaytimeSwitch.Name = "lblPlaytimeSwitch";
+            lblPlaytimeSwitch.Size = new Size(250, 23);
+            lblPlaytimeSwitch.TabIndex = 1;
+            lblPlaytimeSwitch.Text = "Playtime Switch: N/A";
             // 
             // progressBar
             // 
-            this.progressBar = new System.Windows.Forms.ProgressBar();
-            this.progressBar.Location = new System.Drawing.Point(20, 185);
-            this.progressBar.Name = "progressBar";
-            this.progressBar.Size = new System.Drawing.Size(430, 20);
-            this.progressBar.TabIndex = 8;
-            this.Controls.Add(this.progressBar);
-
+            progressBar.Location = new Point(20, 185);
+            progressBar.Name = "progressBar";
+            progressBar.Size = new Size(485, 20);
+            progressBar.TabIndex = 8;
             // 
             // MainForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(540, 450);
-            this.Controls.Add(this.treeSwitchExplorer);
-            this.Controls.Add(this.btnSendToPc);
-            this.Controls.Add(this.btnSendToSwitch);
-            this.Controls.Add(this.txtSwitchPath);
-            this.Controls.Add(this.lblSwitchPath);
-            this.Controls.Add(this.lblPlaytimePc);
-            this.Controls.Add(this.lblPlaytimeSwitch);
-            this.Controls.Add(this.btnBrowsePc);
-            this.Controls.Add(this.btnBrowseSwitch);
-            this.Controls.Add(this.txtPcPath);
-            this.Controls.Add(this.lblPcPath);
-            this.Name = "MainForm";
-            this.Text = "Hollow Knight Switch/PC Save Sync";
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
-            this.MaximizeBox = false;
-            this.ResumeLayout(false);
-            this.PerformLayout();
+            AutoScaleDimensions = new SizeF(7F, 15F);
+            AutoScaleMode = AutoScaleMode.Font;
+            ClientSize = new Size(540, 450);
+            Controls.Add(progressBar);
+            Controls.Add(treeSwitchExplorer);
+            Controls.Add(btnSendToPc);
+            Controls.Add(btnSendToSwitch);
+            Controls.Add(txtSwitchPath);
+            Controls.Add(lblSwitchPath);
+            Controls.Add(lblPlaytimePc);
+            Controls.Add(lblPlaytimeSwitch);
+            Controls.Add(btnBrowsePc);
+            Controls.Add(btnBrowseSwitch);
+            Controls.Add(txtPcPath);
+            Controls.Add(lblPcPath);
+            FormBorderStyle = FormBorderStyle.FixedSingle;
+            MaximizeBox = false;
+            Name = "MainForm";
+            Text = "Hollow Knight Switch/PC Save Sync";
+            ResumeLayout(false);
+            PerformLayout();
         }
 
         #endregion
